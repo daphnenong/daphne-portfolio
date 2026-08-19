@@ -837,6 +837,10 @@ main {
     object-position: top center;
   }
 
+  .w-caption {
+    display: none;
+  }
+
   .w-title {
     font-size: 19px;
   }
