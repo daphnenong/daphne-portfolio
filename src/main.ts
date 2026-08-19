@@ -397,7 +397,7 @@ const newRelic = () => `
 /* ---------- router ---------- */
 
 const routes: Record<string, { title: string; render: () => string }> = {
-  '/': { title: 'Daphne Nong — Product Designer', render: home },
+  '/': { title: 'Daphne Nong Portfolio', render: home },
   '/about': { title: 'About — Daphne Nong', render: about },
   '/anaconda': { title: 'Anaconda.org Case Study — Daphne Nong', render: anaconda },
   '/new-relic': { title: 'New Relic Case Study — Daphne Nong', render: newRelic },
