@@ -57,6 +57,7 @@ body {
 img {
   display: block;
   max-width: 100%;
+  height: auto; /* keep width/height attrs as intrinsic-size hints, never fixed layout height */
 }
 
 a {

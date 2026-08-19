@@ -5,6 +5,7 @@ const loginPage = ({
   loginPath,
   next,
   error,
+  brand,
 }: {
   loginPath: string
   next: string
@@ -89,14 +90,14 @@ const loginPage = ({
       font-size: 15px;
       letter-spacing: 0.04em;
       outline: none;
-      caret-color: #1e40af;
+      caret-color: ${escapeHtml(brand.accent)};
     }
     input::placeholder { color: #a9a8a1; }
     button {
       border: 0;
       background: none;
       padding: 0 2px;
-      color: #1e40af;
+      color: ${escapeHtml(brand.accent)};
       font-family: "Geist Mono", monospace;
       font-size: 18px;
       cursor: pointer;
@@ -108,8 +109,9 @@ const loginPage = ({
       font-family: "Geist Mono", monospace;
       font-size: 11.5px;
       letter-spacing: 0.06em;
+      color: #b4232f;
+      display: ${error ? 'block' : 'none'};
     }
-    .error { color: #b4232f; display: ${error ? 'block' : 'none'}; }
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
       25% { transform: translateX(-5px); }

@@ -11,8 +11,10 @@ https://daphne-portfolio-440.netlify.app.
 
 ## Stack
 
-- Vite + TypeScript, no framework. All pages are rendered client-side from template
-  literals — there is no router library.
+- Vite + TypeScript (strict), no framework. All pages are rendered client-side from
+  template literals — there is no router library. Routing uses the History API
+  (pathnames + `pushState`); unknown paths render a 404 view client-side, and
+  `public/_redirects` provides the SPA fallback on Netlify.
 - Build: `npm run build` (runs `tsc && vite build`)
 - Preview (how the user views it): `npx vite preview --port 4214 --strictPort`
   - Served at **http://localhost:4214**
@@ -24,12 +26,13 @@ https://daphne-portfolio-440.netlify.app.
 
 | Path | What it is |
 |---|---|
-| `src/main.ts` | **All markup lives here** as template literals (home, about, both case studies), plus the hash router and the cursor-following hover thumbnail JS. Edit copy and structure in this file. |
+| `src/main.ts` | **All markup lives here** as template literals (home, about, both case studies), plus the `pushState` router and the cursor-following hover thumbnail JS. Edit copy and structure in this file. |
 | `src/style.css` | All styling, single file, CSS custom-property tokens at `:root`. |
-| `index.html` | App shell; loads `src/main.ts` `/src/style.css`, and the agentation `<script>` tag. |
-| `public/assets/` | Images (`home`, `about`, `anaconda`, `new-relic`). Copied to `dist/` on build. |
+| `index.html` | App shell; loads `src/main.ts` `/src/style.css`. The agentation script is injected by a small inline gate module (localhost or `?annotate` URL only) so the ~549KB bundle never ships to public visitors. |
+| `public/assets/` | Images (`home`, `about`, `anaconda`, `new-relic`) — WebP at display sizes; keep new images compressed (≤ ~200KB) and set matching `width`/`height` attrs at the call sites in `main.ts`. Copied to `dist/` on build. |
 | `public/agentation.js` | Pre-built annotation client bundle (see below). |
 | `public/_redirects` | Netlify SPA redirects, if deployed. |
+| `netlify.toml` | Build/publish config (previously UI-only). Password gate needs `SITEPASS_PASSWORD` + `SITEPASS_SECRET` set in Netlify site env vars (values never committed). |
 
 ## Design tokens (src/style.css)
 
