@@ -58,6 +58,11 @@ The user gives feedback by annotating the live site in her browser. To process i
 
 ## House rules for agents
 
+**One-liner for the next agent:** fix annotations in `src/main.ts`/`src/style.css`,
+`npm run build`, verify on http://localhost:4214, and only commit/push/deploy when
+asked — committing as `daphnenong <47928132+daphnenong@users.noreply.github.com>`,
+never the hostname default.
+
 - **Do not commit or push.** The user will ask explicitly ("stage git" = `git add`
   only, unless she says commit).
 - Keep changes minimal and match the existing tone/spacing system — this design is
