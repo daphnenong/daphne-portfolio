@@ -18,7 +18,7 @@ const header = () => `
   <header class="masthead">
     <a class="wordmark" href="/" data-route>daphne nong</a>
     <nav aria-label="Primary navigation">
-      <a href="/about" data-route>about</a>
+      <a href="/about" data-route${window.location.pathname === '/about' ? ' aria-current="page"' : ''}>about</a>
       <a href="https://drive.google.com/file/d/1zUVb3yU86WD1qiXNbrVuNoJfDhNWHv9J/view?usp=sharing" target="_blank" rel="noreferrer">resume</a>
     </nav>
   </header>
@@ -45,6 +45,8 @@ const workRow = (
   company: string,
   timeline: string,
   img: string,
+  imgWidth: number,
+  imgHeight: number,
   alt: string,
   caption: string,
 ) => `
@@ -56,7 +58,7 @@ const workRow = (
     <span class="w-figure">
       <span class="w-figure-in">
         <span class="w-figure-pad">
-          <img src="${img}" alt="${alt}" loading="lazy" />
+          <img src="${img}" width="${imgWidth}" height="${imgHeight}" alt="${alt}" loading="lazy" decoding="async" />
           <span class="w-caption">${caption}</span>
         </span>
       </span>
@@ -73,7 +75,7 @@ const home = () => `
         <p class="lede">Currently designing at Anaconda.</p>
       </section>
       <section class="works" aria-label="Index of works">
-        <div class="works-head" aria-hidden="true">
+        <div class="works-head">
           <span>project</span>
           <span>description</span>
           <span>company</span>
@@ -85,7 +87,9 @@ const home = () => `
           'Interactive Python sandbox on package pages',
           'Anaconda',
           'june 2026 – july 2026',
-          '/assets/home/anaconda-card.png',
+          '/assets/home/anaconda-card.webp',
+          1280,
+          1533,
           'Preview of the “Try Me” code sandbox on an Anaconda.org package details page',
           'pl. 01 — “try me” code preview, package details page',
         )}
@@ -95,7 +99,9 @@ const home = () => `
           'Adding forecasting capabilities to help users manage costs',
           'new relic',
           'april 2025 – june 2025',
-          '/assets/home/new-relic-card.png',
+          '/assets/new-relic/hero.webp',
+          1920,
+          1221,
           'Preview of the New Relic Compute Management Portal usage chart',
           'pl. 02 — compute management portal, forecasting',
         )}
@@ -117,7 +123,7 @@ const about = () => `
         </header>
         <div class="record-row">
           <figure class="plate portrait">
-            <img src="/assets/about/portrait.jpg" alt="Daphne Nong at a rock hyrax enclosure" />
+            <img src="/assets/about/portrait.jpg" width="520" height="650" alt="Daphne Nong at a rock hyrax enclosure" loading="eager" decoding="async" />
           </figure>
           <div class="bio" id="resume">
             <p class="bio-lede">Product designer but also full time rock hyrax lover, plushie collector, cat mom.</p>
@@ -153,9 +159,19 @@ const caseHead = (
   </header>
 `
 
-const plate = (src: string, alt: string, caption = '', modifier = '') => `
+interface ImageOptions {
+  width: number
+  height: number
+  eager?: boolean
+}
+
+const imgAttrs = ({ width, height, eager = false }: ImageOptions) =>
+  `width="${width}" height="${height}" loading="${eager ? 'eager' : 'lazy'}"` +
+  `${eager ? ' fetchpriority="high"' : ''} decoding="async"`
+
+const plate = (src: string, alt: string, caption = '', modifier = '', opts?: ImageOptions) => `
   <figure class="plate${modifier ? ` ${modifier}` : ''}">
-    <img src="${src}" alt="${alt}" loading="lazy" />
+    <img src="${src}" alt="${alt}" ${opts ? imgAttrs(opts) : 'loading="lazy" decoding="async"'} />
     ${caption ? `<figcaption>${caption}</figcaption>` : ''}
   </figure>
 `
@@ -173,10 +189,12 @@ const entry = (
   alt: string,
   title: string,
   description: string,
+  imgWidth: number,
+  imgHeight: number,
 ) => `
   <div class="entry">
     <figure class="entry-plate">
-      <img src="${src}" alt="${alt}" loading="lazy" />
+      <img src="${src}" width="${imgWidth}" height="${imgHeight}" alt="${alt}" loading="lazy" decoding="async" />
     </figure>
     <div class="entry-copy">
       <p class="entry-no">${no}</p>
@@ -200,17 +218,21 @@ const anaconda = () => `
         '<a class="live-link" href="https://anaconda.org/channels/main/packages/pandas/overview" target="_blank" rel="noreferrer">live as beta — try it on the pandas package page &#8599;</a>',
       )}
       ${plate(
-        '/assets/anaconda/hero-ui.png',
+        '/assets/anaconda/hero-ui.webp',
         'Anaconda.org package details page featuring the in-browser “Try This Package” sandbox panel',
         '',
         'hero-plate',
+        { width: 1920, height: 968, eager: true },
       )}
       ${ledger('problem', `
         <h2>Only 1% of 400,000 weekly visitors were creating accounts</h2>
         <p>The platform offered no compelling reason to register. Despite massive traffic, logged-in and anonymous users had identical experiences, and evaluating a package meant leaving the site entirely.</p>
         ${plate(
-          '/assets/anaconda/comparison-panel.png',
+          '/assets/anaconda/comparison-panel.webp',
           'Side-by-side comparison of the anonymous and logged-in Anaconda.org package page experiences',
+          '',
+          '',
+          { width: 1920, height: 571 },
         )}
       `)}
       ${ledger('how might we…', `
@@ -238,8 +260,11 @@ const anaconda = () => `
         <h2>Mapping the path from exploration to conversion</h2>
         <p>To connect discovery with retention, I mapped the journey for both anonymous and logged-in users.</p>
         ${plate(
-          '/assets/anaconda/user-flow.png',
+          '/assets/anaconda/user-flow.webp',
           'User flow mapping the journey from the “Try Me” sandbox to a shareable link',
+          '',
+          '',
+          { width: 1920, height: 822 },
         )}
       `)}
       ${ledger('solution', `
@@ -248,24 +273,30 @@ const anaconda = () => `
         <div class="entry-list">
           ${entry(
             '01',
-            '/assets/anaconda/instant-panel.png',
+            '/assets/anaconda/instant-panel.webp',
             'Sandbox editor running a Python snippet instantly in the browser, with a resettable code block',
             'Instant execution',
             'Users can immediately run, edit, and reset Python snippets directly in the browser, completely bypassing the need for a local terminal setup.',
+            1234,
+            750,
           )}
           ${entry(
             '02',
-            '/assets/anaconda/contextual-panel.png',
+            '/assets/anaconda/contextual-panel.webp',
             'Sandbox embedded directly on the Anaconda.org package details page, next to package metadata',
             'Contextual discovery',
             'The sandbox is embedded right on the package details page, ensuring practitioners stay within the Anaconda ecosystem while evaluating tools.',
+            1234,
+            750,
           )}
           ${entry(
             '03',
-            '/assets/anaconda/conversion-panel.png',
+            '/assets/anaconda/conversion-panel.webp',
             'Dialog prompting an anonymous user to create an account in order to save sandbox work',
             '<span class="after-tag">(after beta)</span> Value-led conversion',
             'The designed conversion moment: asking users to save their work organically bridges the gap between a quick anonymous test and a long-term registered account.',
+            1234,
+            750,
           )}
         </div>
       `)}
@@ -299,10 +330,11 @@ const newRelic = () => `
         'April 2025 – June 2025',
       )}
       ${plate(
-        '/assets/new-relic/hero.png',
+        '/assets/new-relic/hero.webp',
         'New Relic Compute Management Portal showing CCU consumption charts',
         '',
         'hero-plate',
+        { width: 1920, height: 1221, eager: true },
       )}
       ${ledger('problem', `
         <h2 class="statement-md">Lack of clear insights prevents customers from effectively understanding and managing their compute usage.</h2>
@@ -317,8 +349,11 @@ const newRelic = () => `
             <p>In the platform, there is a query (NRQL Predict) that a customer can type to run predictions for a set of data.</p>
           </div>
           ${plate(
-            '/assets/new-relic/query-panel.png',
+            '/assets/new-relic/query-panel.webp',
             'NRQL Predict query and resulting forecast chart in the New Relic platform',
+            '',
+            '',
+            { width: 1476, height: 748 },
           )}
         </div>
       `)}
@@ -330,7 +365,7 @@ const newRelic = () => `
         <div class="item-list">
           <div class="item iteration">
             <figure class="item-plate">
-              <img src="/assets/new-relic/iteration-button.png" alt="Discarded concept placing a forecasting button in the portal toolbar" loading="lazy" />
+              <img src="/assets/new-relic/iteration-button.webp" width="1170" height="1258" alt="Discarded concept placing a forecasting button in the portal toolbar" loading="lazy" decoding="async" />
             </figure>
             <div class="item-copy">
               <h3>Button</h3>
@@ -339,7 +374,7 @@ const newRelic = () => `
           </div>
           <div class="item iteration">
             <figure class="item-plate">
-              <img src="/assets/new-relic/iteration-switch.png" alt="Discarded concept toggling forecasts with a switch control" loading="lazy" />
+              <img src="/assets/new-relic/iteration-switch.webp" width="1170" height="1258" alt="Discarded concept toggling forecasts with a switch control" loading="lazy" decoding="async" />
             </figure>
             <div class="item-copy">
               <h3>Switch</h3>
@@ -348,7 +383,7 @@ const newRelic = () => `
           </div>
           <div class="item iteration">
             <figure class="item-plate">
-              <img src="/assets/new-relic/iteration-drawer.png" alt="Discarded concept opening forecasts in a side drawer" loading="lazy" />
+              <img src="/assets/new-relic/iteration-drawer.webp" width="1170" height="1258" alt="Discarded concept opening forecasts in a side drawer" loading="lazy" decoding="async" />
             </figure>
             <div class="item-copy">
               <h3>Drawer</h3>
@@ -364,24 +399,30 @@ const newRelic = () => `
         <div class="entry-list">
           ${entry(
             '01',
-            '/assets/new-relic/feature-visibility.png',
+            '/assets/new-relic/feature-visibility.webp',
             'Forecasting option surfaced in the portal with a visible beta label',
             'Feature visibility',
             'Customers can easily locate the forecasting feature and are clearly informed of its beta status.',
+            1280,
+            814,
           )}
           ${entry(
             '02',
-            '/assets/new-relic/hero.png',
+            '/assets/new-relic/hero.webp',
             'Expanded graph menu where billing admins can enable usage forecasting',
             'Forecasting made easy for billing admins',
             'Customers can get a grasp on what their future usage will look like by clicking into the existing graph menu.',
+            1920,
+            1221,
           )}
           ${entry(
             '03',
-            '/assets/new-relic/predictive-data.png',
+            '/assets/new-relic/predictive-data.webp',
             'Chart tooltip marking forecast values as predictive rather than real-time data',
             'Communicating predictive data',
             "Tooltips and hovers transparently communicate predictive data, clarifying it's not real-time.",
+            1440,
+            900,
           )}
         </div>
       `)}
@@ -394,41 +435,20 @@ const newRelic = () => `
   ${footer()}
 `
 
-/* ---------- router ---------- */
+/* ---------- 404 ---------- */
 
-const routes: Record<string, { title: string; render: () => string }> = {
-  '/': { title: 'Daphne Nong Portfolio', render: home },
-  '/about': { title: 'About — Daphne Nong', render: about },
-  '/anaconda': { title: 'Anaconda.org Case Study — Daphne Nong', render: anaconda },
-  '/new-relic': { title: 'New Relic Case Study — Daphne Nong', render: newRelic },
-}
-
-const render = () => {
-  const route = routes[window.location.pathname] ?? routes['/']
-  document.title = route.title
-  app.innerHTML = route.render()
-  document.body.dataset.route = window.location.pathname
-}
-
-document.addEventListener('click', (event) => {
-  const link = (event.target as Element).closest<HTMLAnchorElement>('a[data-route]')
-  if (!link || link.target || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-    return
-  }
-
-  const url = new URL(link.href)
-  if (url.origin !== window.location.origin) {
-    return
-  }
-
-  event.preventDefault()
-  window.history.pushState({}, '', `${url.pathname}${url.hash}`)
-  render()
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-})
-
-window.addEventListener('popstate', render)
-render()
+const notFound = () => `
+  ${header()}
+  <main class="case">
+    <div class="shell">
+      <section class="statement">
+        <h1>Page not found.</h1>
+        <p class="lede">This page doesn’t exist. <a href="/" data-route>Back to the index&nbsp;&#8594;</a></p>
+      </section>
+    </div>
+  </main>
+  ${footer()}
+`
 
 /* ---------- cursor-following work preview ---------- */
 
@@ -438,6 +458,7 @@ cursorThumb.setAttribute('aria-hidden', 'true')
 const cursorThumbImg = document.createElement('img')
 cursorThumbImg.alt = ''
 cursorThumbImg.draggable = false
+cursorThumbImg.decoding = 'async'
 cursorThumb.appendChild(cursorThumbImg)
 document.body.appendChild(cursorThumb)
 
@@ -468,7 +489,10 @@ const clampThumb = (clientX: number, clientY: number) => {
 }
 
 document.addEventListener('mouseover', (event) => {
-  const row = (event.target as Element).closest?.('.work-row')
+  if (!(event.target instanceof Element)) {
+    return
+  }
+  const row = event.target.closest('.work-row')
   if (!row || row === currentRow) {
     return
   }
@@ -509,3 +533,79 @@ document.addEventListener('mouseout', (event) => {
   }
   hide()
 })
+
+/* ---------- router ---------- */
+
+window.history.scrollRestoration = 'manual'
+const scrollPositions = new Map<string, number>()
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+let currentPath = window.location.pathname
+
+const routes: Record<string, { title: string; description: string; render: () => string }> = {
+  '/': {
+    title: 'Daphne Nong Portfolio',
+    description: 'Daphne Nong is a product designer creating intuitive experiences at Anaconda.',
+    render: home,
+  },
+  '/about': {
+    title: 'About — Daphne Nong',
+    description: 'About Daphne Nong, product designer at Anaconda, previously New Relic. B.S. Cognitive Science (Design and Interaction), UC San Diego.',
+    render: about,
+  },
+  '/anaconda': {
+    title: 'Anaconda.org Case Study — Daphne Nong',
+    description: 'Case study: an interactive in-browser “Try Me” code sandbox on Anaconda.org package pages.',
+    render: anaconda,
+  },
+  '/new-relic': {
+    title: 'New Relic Case Study — Daphne Nong',
+    description: 'Case study: adding usage forecasting to the New Relic Compute Management Portal.',
+    render: newRelic,
+  },
+}
+
+const setMetaDescription = (content: string) => {
+  const el = document.querySelector<HTMLMetaElement>('meta[name="description"]')
+  if (el) {
+    el.content = content
+  }
+}
+
+const render = () => {
+  const route = routes[window.location.pathname]
+  document.title = route ? route.title : 'Not found — Daphne Nong'
+  setMetaDescription(route ? route.description : routes['/'].description)
+  app.innerHTML = route ? route.render() : notFound()
+  currentPath = window.location.pathname
+  document.body.dataset.route = currentPath
+  hide()
+}
+
+document.addEventListener('click', (event) => {
+  if (!(event.target instanceof Element)) {
+    return
+  }
+  const link = event.target.closest<HTMLAnchorElement>('a[data-route]')
+  if (!link || link.target || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+    return
+  }
+
+  const url = new URL(link.href)
+  if (url.origin !== window.location.origin) {
+    return
+  }
+
+  event.preventDefault()
+  scrollPositions.set(currentPath, window.scrollY)
+  window.history.pushState({}, '', `${url.pathname}${url.hash}`)
+  render()
+  window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' })
+})
+
+window.addEventListener('popstate', () => {
+  scrollPositions.set(currentPath, window.scrollY)
+  render()
+  window.scrollTo({ top: scrollPositions.get(currentPath) ?? 0, behavior: 'auto' })
+})
+
+render()
